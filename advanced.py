@@ -31,7 +31,7 @@ def dot(a, b):
     return dotproduct
 
 def model(w, x):
-    f = round(255 * sigmoid(dot(w, x)))
+    f = 255 * sigmoid(dot(w, x))
     return f
 
 
@@ -48,10 +48,12 @@ outgreen = []
 outblue = []
 print("Image Size: ", grayShape)
 
-a = 0.05
-Wr = [1,.1,.1,.1,.1,.1,.1,.1,.1]
-Wg = [1,.1,.1,.1,.1,.1,.1,.1,.1]
-Wb = [1,.1,.1,.1,.1,.1,.1,.1,.1]
+ar = .0003
+ag = .0003
+ab = .0003
+Wr = [1,0,0,0,0,0,0,0,0]
+Wg = [1,0,0,0,0,0,0,0,0]
+Wb = [1,0,0,0,0,0,0,0,0]
 
 print("Training - Get inputs and outputs")
 # get inputs and outputs
@@ -76,31 +78,11 @@ for i in range(rows):
             outred.append(pixel[0])
             outgreen.append(pixel[1])
             outblue.append(pixel[2])
-
-            '''
-            color = [0,0,0]
-            index = 0
-            
-            distance = sqrt((256**2) + (256**2) + (256**2))
-            for value in aveColors:
-                dist = sqrt((value[0] - pixel[0])**2 +
-                            (value[1] - pixel[1])**2 +
-                            (value[2] - pixel[2])**2)
-                
-                if dist < distance:
-                    color = aveColors[index]
-                    distance = dist
-                
-                index += 1
-                
-            outputs.append(color)
-            img[i, j] = color
-            '''
         else:
             img[i, j] = [0,0,0]
 
 
-# Train 100 times
+# Train a fuck ton of times
 for k in range(10000000):
     #randR = random.randint(0, 8)
     #randG = random.randint(0, 8)
@@ -116,30 +98,67 @@ for k in range(10000000):
     tempWg = Wg.copy()
     tempWb = Wb.copy()
     for j in range(len(Wr)):
-        #print(a*2*(model(tempWr, x) - yr)*x)
-        Wr[j] = Wr[j] - (a*2*(model(tempWr, x) - yr)*x[j])
-        Wg[j] = Wg[j] - (a*2*(model(tempWg, x) - yg)*x[j])
-        Wb[j] = Wb[j] - (a*2*(model(tempWb, x) - yb)*x[j])
+        Wr[j] = Wr[j] - (ar*(model(tempWr, x) - yr)*x[j])
+        Wg[j] = Wg[j] - (ag*(model(tempWg, x) - yg)*x[j])
+        Wb[j] = Wb[j] - (ab*(model(tempWb, x) - yb)*x[j])
 
-print(Wr)
-print(Wg)
-print(Wb)
+        
+        # adjust learning rate
+        if abs(model(tempWr, x) - yr) > 120:
+            ar = 0.002
+        elif abs(model(tempWr, x) - yr) > 30:
+            ar = 0.0005
+        elif abs(model(tempWr, x) - yr) > 0:
+            ar = 0.0002
 
-print("Testing basic agent")
+        if abs(model(tempWg, x) - yg) > 120:
+            ag = 0.001
+        elif abs(model(tempWg, x) - yg) > 30:
+            ag = 0.0005
+        elif abs(model(tempWg, x) - yg) > 0:
+            ag = 0.0002
+
+        if abs(model(tempWb, x) - yb) > 120:
+            ab = 0.001
+        elif abs(model(tempWb, x) - yb) > 30:
+            ab = 0.0005
+        elif abs(model(tempWb, x) - yb) > 0:
+            ab = 0.0002
+        '''
+        if abs(model(tempWr, x) - yr) > 120:
+            ar = 0.005
+        elif abs(model(tempWr, x) - yr) > 60:
+            ar = 0.0006
+        elif abs(model(tempWr, x) - yr) > 0:
+            ar = 0.0002
+
+        if abs(model(tempWg, x) - yg) > 120:
+            ag = 0.1
+        elif abs(model(tempWg, x) - yg) > 60:
+            ag = 0.0009
+        elif abs(model(tempWg, x) - yg) > 0:
+            ag = 0.0001
+
+        if abs(model(tempWb, x) - yb) > 120:
+            ab = 0.1
+        elif abs(model(tempWb, x) - yb) > 30:
+            ab = 0.001
+        elif abs(model(tempWb, x) - yb) > 0:
+            ab = 0.0001
+        '''
+            
+        #print("Loss Red", model(tempWr, x), yr, model(tempWr, x) - yr)
+        #print("Loss Green", model(tempWg, x), yg, model(tempWg, x) - yg)
+        #print("Loss Blue", model(tempWb, x), yb, model(tempWb, x) - yb)
+        #print()
+
+#print(Wr,"\n")
+#print(Wg,"\n")
+#print(Wb,"\n")
+
+print("Testing advanced agent")
 # basic coloring agent
 for i in range(rows):
-    '''
-    if i == (int)(rows*.5):
-        print("50% Complete")
-    elif i == (int)(rows*.25):
-        print("25% Complete")
-    elif i == (int)(rows*.75):
-        print("75% Complete")
-    elif i == (int)(rows*.1):
-        print("10% Complete")
-    elif i == (int)(rows*.01):
-        print("1% Complete")
-        '''        
     for j in range((int)(cols/2)+1, cols):
         if i > 0 and i < rows-1 and j > 0 and j < cols-1:
             ''' GET CURRENT PATCH '''
